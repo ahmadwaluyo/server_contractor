@@ -1,7 +1,8 @@
-import { IsNumber, IsString } from "class-validator";
+import { PartialType } from '@nestjs/mapped-types';
+import { IsNumber, IsString } from 'class-validator';
+import { UserDto } from './user.dto';
 
-export class UserDto {
-
+export class UpdateUserDto extends PartialType(UserDto) {
   @IsString()
   name: string;
 
@@ -28,5 +29,4 @@ export class UserDto {
 
   @IsNumber()
   roleId: number;
-
 }

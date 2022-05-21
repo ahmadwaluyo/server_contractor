@@ -26,6 +26,9 @@ export class User {
   @Column({ default: 0 })
   saldo: number;
 
+  @Column({ default: 0 })
+  salary: number;
+
   @ManyToOne(() => RoleEntity, roles => roles.users)
   @JoinColumn({ name: 'roleId' })
   public role: RoleEntity;

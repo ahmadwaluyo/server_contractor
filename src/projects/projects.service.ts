@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import ResponseStatus from 'src/middleware/responses';
 import { User } from 'src/user/entity/user.entity';
 import { Repository, UpdateResult } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -25,7 +26,13 @@ export class ProjectsService {
   }
 
   async findAll(): Promise<Project[]> {
-    return this.projectRepository.find({ relations: ['workers'] });
+    const foundData = await this.projectRepository.find({ relations: ['workers'] });
+    const payload = {
+      statusCode: 200,
+      message: 'OK',
+      data: foundData
+    }
+    return ResponseStatus(payload.statusCode, payload.message, payload.data);
   }
 
   async findOne(id: number): Promise<Project> {

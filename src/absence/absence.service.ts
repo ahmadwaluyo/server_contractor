@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import ResponseStatus from 'src/middleware/responses';
 import { User } from 'src/user/entity/user.entity';
 import { Repository } from 'typeorm';
 import { CreateAbsenceDto } from './dto/create-absence.dto';
@@ -22,7 +23,13 @@ export class AbsenceService {
   }
 
   async findAll(): Promise<Absence[]> {
-    return this.absenceRepository.find({ relations: ['karyawan'] });
+    const foundData = await this.absenceRepository.find({ relations: ['karyawan'] });
+    const payload = {
+      statusCode: 200,
+      message: 'OK',
+      data: foundData
+    }
+    return ResponseStatus(payload.statusCode, payload.message, payload.data);
   }
 
   findOne(id: number) {

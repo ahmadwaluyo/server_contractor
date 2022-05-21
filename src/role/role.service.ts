@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import ResponseStatus from 'src/middleware/responses';
 import { Repository, UpdateResult } from 'typeorm';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -22,7 +23,13 @@ export class RoleService {
   }
 
   async findAll(): Promise<RoleEntity[]> {
-    return this.roleRepository.find({ relations: ['users'] });
+    const foundData = await this.roleRepository.find({ relations: ['users'] });
+    const payload = {
+      statusCode: 200,
+      message: 'OK',
+      data: foundData
+    }
+    return ResponseStatus(payload.statusCode, payload.message, payload.data);
   }
 
   async findOne(id: number): Promise<RoleEntity> {
