@@ -17,9 +17,19 @@ export class AbsenceController {
     return this.absenceService.findAll();
   }
 
-  @Get(':id')
+  @Get('/user/:id')
   findOne(@Param('id') id: string) {
-    return this.absenceService.findOne(+id);
+    return this.absenceService.findAbsenceByUserId(+id);
+  }
+
+  @Get('/project/:id')
+  find(@Param('id') id: string) {
+    return this.absenceService.findAbsenceByProjectId(+id);
+  }
+
+  @Get('/clock_in/:userId/:date')
+  findBy(@Param('userId') userId: string, @Param('date') date: Date) {
+    return this.absenceService.findAbsenceByClockIn(+userId, date);
   }
 
   @Patch(':id')

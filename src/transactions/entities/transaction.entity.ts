@@ -1,29 +1,36 @@
 import { Project } from "src/projects/entities/project.entity";
-import { User } from "src/user/entity/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity({ name: 'absence' })
-export class Absence {
+@Entity({ name: 'transactions' })
+export class Transaction {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'timestamptz' }) // Recommended
-  clock_in: Date;
+  @Column({ default: 0 })
+  debit: number;
+
+  @Column({ default: 0 })
+  credit: number;
+
+  @Column()
+  category: 'material' | 'konsumsi' | 'transportasi' | 'project_fee' | 'lainnya';
+
+  @Column()
+  descriptions: string;
 
   @Column({ default: false })
   isApproved: boolean;
 
-  @Column({ default: false })
-  request_overtime: boolean;
-
   @Column({ default: 0 })
-  overtime: number;
+  cashbond: number;
 
-  @ManyToOne(() => User, user => user.absence)
-  @JoinColumn({ name: 'userId' })
-  public karyawan: User;
+  @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+  transaction_update: Date;
 
-  @ManyToOne(() => Project, project => project.absences)
+  @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+  transaction_date: Date;
+
+  @ManyToOne(() => Project, project => project.transactions)
   @JoinColumn({ name: 'projectId' })
   public project: Project;
 

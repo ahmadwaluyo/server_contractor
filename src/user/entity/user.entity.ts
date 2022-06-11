@@ -1,4 +1,6 @@
+import { Exclude } from "class-transformer";
 import { Absence } from "src/absence/entities/absence.entity";
+import { Payroll } from "src/payroll/entities/payroll.entity";
 import { Project } from "src/projects/entities/project.entity";
 import { BeforeInsert, Column, CreateDateColumn, Entity, Generated, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { RoleEntity } from "../../role/entities/role.entity";
@@ -17,6 +19,7 @@ export class User {
   @Column({ nullable: false, unique: true })
   email: string;
 
+  @Exclude({ toPlainOnly: true })
   @Column({ nullable: false })
   password: string;
 
@@ -39,6 +42,9 @@ export class User {
 
   @OneToMany(() => Absence, (absence: Absence) => absence.karyawan)
   public absence: Absence[];
+
+  @OneToMany(() => Payroll, (payrol: Payroll) => payrol.employee)
+  public payroll: Payroll[];
 
   @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
   public created_at: Date;

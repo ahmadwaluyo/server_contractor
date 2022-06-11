@@ -1,5 +1,8 @@
+import { Absence } from "src/absence/entities/absence.entity";
+import { Payroll } from "src/payroll/entities/payroll.entity";
+import { Transaction } from "src/transactions/entities/transaction.entity";
 import { User } from "src/user/entity/user.entity";
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'projects' })
 export class Project {
@@ -24,8 +27,24 @@ export class Project {
   @Column({ nullable: false })
   end_date: Date;
 
+  @Column({ default: 0 })
+  progress: number;
+
+  @Column({ default: true })
+  status: boolean;
+
   @OneToMany(() => User, (user: User) => user.project)
 	public workers: User[]
+
+  @OneToMany(() => Absence, (abs: Absence) => abs.project)
+	public absences: Absence[]
+
+  @OneToMany(() => Transaction, (transaction: Transaction) => transaction.project)
+	public transactions: Transaction[]
+
+  @ManyToMany(() => Payroll)
+  @JoinTable()
+  public payrolls: Payroll[]
 
   @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
   public created_at: Date;

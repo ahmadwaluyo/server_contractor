@@ -7,6 +7,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { RoleEntity } from 'src/role/entities/role.entity';
 import { Project } from 'src/projects/entities/project.entity';
 import { Absence } from 'src/absence/entities/absence.entity';
+import { Payroll } from 'src/payroll/entities/payroll.entity';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { Absence } from 'src/absence/entities/absence.entity';
     TypeOrmModule.forFeature([RoleEntity]),
     TypeOrmModule.forFeature([Project]),
     TypeOrmModule.forFeature([Absence]),
+    TypeOrmModule.forFeature([Payroll]),
     forwardRef(() => AuthModule),
   ],
   controllers: [UserController],

@@ -24,9 +24,4 @@ export class UpdateUserDto extends PartialType(UserDto) {
   @IsNumber()
   salary: number;
 
-  @IsNumber()
-  projectId: number;
-
-  @IsNumber()
-  roleId: number;
 }

@@ -33,6 +33,9 @@ export class AuthService {
     }
 
     comparePassword (newPassword: string, passwordHash: string): boolean{
+        console.log(newPassword, "newPassword");
+        console.log(passwordHash, "passwordHash");
+        
         return bcrypt.compareSync(newPassword, passwordHash);
     }
 

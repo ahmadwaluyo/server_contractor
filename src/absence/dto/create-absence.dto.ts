@@ -1,4 +1,4 @@
-import { IsDate, IsNumber } from "class-validator";
+import { IsBoolean, IsDate, IsNumber } from "class-validator";
 
 export class CreateAbsenceDto {
 
@@ -7,5 +7,14 @@ export class CreateAbsenceDto {
 
   @IsNumber()
   userId: number;
+
+  @IsNumber()
+  projectId: number;
+
+  @IsNumber()
+  overtime: number;
+
+  @IsBoolean()
+  isApproved: boolean;
 
 }
