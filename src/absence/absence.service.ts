@@ -21,10 +21,14 @@ export class AbsenceService {
   ) { }
 
   async create(createAbsenceDto: CreateAbsenceDto): Promise<Absence> {
-    const { clock_in, userId, projectId, isApproved } = createAbsenceDto;
-    const saveUser: User = await this.userRepository.save({ id: userId });
-    const saveProject: Project = await this.projectRepository.save({ id: projectId });
-    return this.absenceRepository.save({ clock_in, userId, karyawan: saveUser, project: saveProject, isApproved });
+    try {
+      const { clock_in, userId, projectId, isApproved } = createAbsenceDto;
+      const saveUser: User = await this.userRepository.save({ id: userId });
+      const saveProject: Project = await this.projectRepository.save({ id: projectId });
+      return this.absenceRepository.save({ clock_in, userId, karyawan: saveUser, project: saveProject, isApproved });
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   async findAll(): Promise<Absence[]> {
