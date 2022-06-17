@@ -17,9 +17,14 @@ export class TransactionsController {
     return this.transactionsService.findAll();
   }
 
-  @Get(':id')
+  @Get('/project/:id')
   findOne(@Param('id') id: string) {
-    return this.transactionsService.findOne(+id);
+    return this.transactionsService.findBy(+id);
+  }
+
+  @Get('/cashbond/:id')
+  findBy(@Param('id') id: string) {
+    return this.transactionsService.findCashbond(+id);
   }
 
   @Patch(':id')

@@ -42,7 +42,7 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     try {
-      const foundData = await this.userRepository.find({ relations: ['role', 'project', 'absence', 'payroll'] });
+      const foundData = await this.userRepository.find({ relations: ['role', 'project', 'absence', 'payroll', 'transactions'] });
       const payload = {
         statusCode: 200,
         message: 'OK',
@@ -73,7 +73,7 @@ export class UserService {
         where: {
           id
         },
-        relations: ['role', 'project', 'absence', 'payroll']
+        relations: ['role', 'project', 'absence', 'payroll', 'transactions']
       });
       if (!selectedUser) throw new NotFoundException(`there is no user with ID ${id}`);
       delete selectedUser.password;
@@ -94,7 +94,7 @@ export class UserService {
         where: {
           username
         },
-        relations: ['role', 'project', 'absence', 'payroll'],
+        relations: ['role', 'project', 'absence', 'payroll', 'transactions'],
       });
 
       if (!selectedUser) throw new NotFoundException(`there is no user with username->(${username})`);

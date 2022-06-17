@@ -34,14 +34,10 @@ export class PayrollService {
         saldo_project: foundProject.saldo_project - salary
       }
       const isItDone: Payroll = await this.payrollRepository.save({ salary, userId, employee: saveUser, descriptions, projects: saveProject });
-      console.log(isItDone, "check ini3");
       if (!isItDone) throw new InsertValuesMissingError();
-      console.log(isItDone, "check");
 
       const updateUser = await this.userRepository.update(userId, payloadUser);
       const updateProject = await this.projectRepository.update(projectId, payloadProject);
-      console.log(updateProject, "update project");
-      console.log(updateUser, "update user");
 
       Promise.all([updateUser, updateProject]);
       return isItDone;
@@ -117,7 +113,7 @@ export class PayrollService {
       await this.payrollRepository.update(id, updatePayrollDto);
       const payload = {
         statusCode: 200,
-        message: 'Project successfully deleted',
+        message: 'Project successfully updated',
       }
       return payload;
     } catch (error) {
