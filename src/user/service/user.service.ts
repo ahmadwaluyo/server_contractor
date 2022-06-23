@@ -34,7 +34,14 @@ export class UserService {
       const hashPassword: string = await this.authService.hashPassword(password);
       const saveProject: Project = await this.projectRepository.save({ id: projectId });
       const saveRole: RoleEntity = await this.roleRepository.save({ id: roleId });
-      return this.userRepository.save({ email, name, username, password: hashPassword, phone_number, saldo, salary, project: saveProject, role: saveRole });
+      const dataUser = await this.userRepository.save({ email, name, username, password: hashPassword, phone_number, saldo, salary, project: saveProject, role: saveRole });
+      delete dataUser.password;
+      const payload = {
+        statusCode: 201,
+        message: 'OK',
+        data: dataUser,
+      }
+      return ResponseStatus(payload.statusCode, payload.message, payload.data);
     } catch (error) {
       throw new Error(error);
     }
@@ -60,8 +67,12 @@ export class UserService {
       const isValidUser = await this.authService.comparePassword(loginUser.password, payloadLogin.password);
       if (!isValidUser) throw new NotFoundException('Invalid Username or Password');
       const accessToken = await this.authService.generateJWT(payloadLogin);
-
-      return { accessToken, roleId: payloadLogin.role.id };
+      const payload = {
+        statusCode: 200,
+        message: 'OK',
+        data: { accessToken, roleId: payloadLogin.role.id }
+      }
+      return ResponseStatus(payload.statusCode, payload.message, payload.data);
     } catch (error) {
       throw new Error(error);
     }
@@ -82,7 +93,7 @@ export class UserService {
         message: 'OK',
         data: selectedUser
       }
-      return payload;
+      return ResponseStatus(payload.statusCode, payload.message, payload.data);
     } catch (error) {
       throw new Error(error);
     }
@@ -113,7 +124,7 @@ export class UserService {
         message: 'User successfully updated',
         data: findUser
       }
-      return payload;
+      return ResponseStatus(payload.statusCode, payload.message, payload.data);
     } catch (error) {
       throw new Error(error);
     }

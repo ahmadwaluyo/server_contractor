@@ -21,8 +21,8 @@ export class ProjectsService {
         },
       });
       if (selectedProject) throw new NotFoundException(`Project ${project_name} is already exist !`);
-
-      return this.projectRepository.save({ project_name, project_address, end_date, saldo_project, owner_name });
+      const dataProject = await this.projectRepository.save({ project_name, project_address, end_date, saldo_project, owner_name });
+      return ResponseStatus(201, 'Project Created Successfully !', dataProject);
     } catch (error) {
       throw new Error(error);
     }
@@ -59,7 +59,7 @@ export class ProjectsService {
       selectedProject.workers.forEach((el) => {
         delete el.password;
       });
-      return selectedProject;
+      return ResponseStatus(200, 'OK', selectedProject);
     } catch (error) {
       throw new Error(error);
     }
@@ -67,7 +67,8 @@ export class ProjectsService {
 
   async update(id: number, updateProjectDto: UpdateProjectDto): Promise<UpdateResult> {
     try {
-      return this.projectRepository.update(id, updateProjectDto);
+      const updatedProject = await this.projectRepository.update(id, updateProjectDto);
+      return ResponseStatus(200, 'OK', updatedProject);
     } catch (error) {
       throw new Error(error);
     }

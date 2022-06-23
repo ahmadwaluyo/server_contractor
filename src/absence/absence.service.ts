@@ -25,7 +25,8 @@ export class AbsenceService {
       const { clock_in, userId, projectId, isApproved } = createAbsenceDto;
       const saveUser: User = await this.userRepository.save({ id: userId });
       const saveProject: Project = await this.projectRepository.save({ id: projectId });
-      return this.absenceRepository.save({ clock_in, userId, karyawan: saveUser, project: saveProject, isApproved });
+      const dataAbsence = await this.absenceRepository.save({ clock_in, userId, karyawan: saveUser, project: saveProject, isApproved });
+      return ResponseStatus(201, 'Absence Created Successfully', dataAbsence);
     } catch (error) {
       throw new Error(error);
     }
@@ -160,7 +161,8 @@ export class AbsenceService {
 
         if (finalSaldo > 0) await this.userRepository.update(foundData.karyawan.id, { saldo: decimalAdjust('round', finalSaldo, 3) });
       }
-      return this.absenceRepository.update(id, updateAbsenceDto);
+      const updatedAbsence = await this.absenceRepository.update(id, updateAbsenceDto);
+      return ResponseStatus(200, 'OK', updatedAbsence);
     } catch (error) {
       throw new Error(error);
     }
@@ -168,7 +170,8 @@ export class AbsenceService {
 
   async remove(id: number): Promise<void> {
     try {
-      await this.absenceRepository.delete(id);
+      const deletedAbsence = await this.absenceRepository.delete(id);
+      return ResponseStatus(200, 'OK', deletedAbsence);
     } catch (error) {
       throw new Error(error);
     }

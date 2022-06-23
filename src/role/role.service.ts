@@ -20,7 +20,8 @@ export class RoleService {
         where: { roleName }
       })
       if (foundRole) throw new NotFoundException(`Role ${roleName} is already exist !`);
-      return this.roleRepository.save({ roleName });
+      const dataRole = await this.roleRepository.save({ roleName });
+      return ResponseStatus(201, 'Role Created Successfully', dataRole);
     } catch (error) {
       throw new Error(error);
     }
@@ -59,7 +60,7 @@ export class RoleService {
       });
       const payload = {
         statusCode: 200,
-        message: 'Role successfully updated',
+        message: 'OK',
         data: selectedRole
       }
       return payload;

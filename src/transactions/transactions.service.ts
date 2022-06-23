@@ -35,7 +35,7 @@ export class TransactionsService {
       const saveUser: User = await this.userRepository.save({ id: userId });
       const data = await this.transactionRepository.save({ category, descriptions, project: saveProject, applicant: saveUser, transaction_date, credit, debit });
       const payload = {
-        statusCode: 200,
+        statusCode: 201,
         message: 'OK',
         data: data
       }
@@ -70,7 +70,8 @@ export class TransactionsService {
           project: {
             id
           }
-        }
+        },
+        order: { id: 'desc' }
       });
       if (!foundData) throw new NotFoundException('Transaction not found !');
       foundData.forEach((el) => {
@@ -94,7 +95,8 @@ export class TransactionsService {
           applicant: {
             id
           }
-        }
+        },
+        order: { id: 'desc' }
       });
       if (!foundData) throw new NotFoundException('Transaction not found !');
       foundData.forEach((el) => {
