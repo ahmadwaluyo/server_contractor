@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsString } from 'class-validator';
 import { UserDto } from './user.dto';
 
 export class UpdateUserDto extends PartialType(UserDto) {
@@ -23,5 +23,8 @@ export class UpdateUserDto extends PartialType(UserDto) {
 
   @IsNumber()
   salary: number;
+
+  @IsBoolean()
+  status: boolean;
 
 }

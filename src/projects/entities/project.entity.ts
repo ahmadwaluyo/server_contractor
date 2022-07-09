@@ -15,6 +15,9 @@ export class Project {
   @Column()
   owner_name: string;
 
+  @Column({ default: "0" })
+  contact_owner: string;
+
   @Column()
   project_address: string;
 
@@ -29,6 +32,9 @@ export class Project {
 
   @Column({ default: 0 })
   progress: number;
+
+  @Column({ default: 0, nullable: false })
+  value_project: number;
 
   @Column({ default: true })
   status: boolean;

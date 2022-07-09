@@ -21,6 +21,12 @@ export class TransactionsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/total/:id')
+  find(@Param('id') id: string) {
+    return this.transactionsService.findTotal(+id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('/project/:id')
   findOne(@Param('id') id: string) {
     return this.transactionsService.findBy(+id);

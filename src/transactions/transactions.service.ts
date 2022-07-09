@@ -34,6 +34,15 @@ export class TransactionsService {
       const saveProject: Project = await this.projectRepository.save({ id: projectId });
       const saveUser: User = await this.userRepository.save({ id: userId });
       const data = await this.transactionRepository.save({ category, descriptions, project: saveProject, applicant: saveUser, transaction_date, credit, debit });
+      const foundProject: Project = await this.projectRepository.findOne({ where: { id: projectId } })
+      let isUpdatedCredit = null;
+      if (createTransactionDto.credit && createTransactionDto.category !== 'cashbond') {
+        isUpdatedCredit = await this.projectRepository.update(projectId, { saldo_project: Number(foundProject.saldo_project) - Number(createTransactionDto.credit) })
+      }
+      if (createTransactionDto.debit && createTransactionDto.category !== 'cashbond') {
+        isUpdatedCredit = await this.projectRepository.update(projectId, { saldo_project: Number(foundProject.saldo_project) + Number(createTransactionDto.debit) })
+      }
+      if (!isUpdatedCredit) throw new Error("Can't update saldo project !");
       const payload = {
         statusCode: 201,
         message: 'OK',
@@ -57,6 +66,53 @@ export class TransactionsService {
       foundData.forEach((el) => {
         delete el.applicant.password;
       });
+      return ResponseStatus(payload.statusCode, payload.message, payload.data);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async findTotal(id: number): Promise<Transaction> {
+    try {
+      const foundData = await this.transactionRepository.find({
+        relations: ['project', 'applicant'], where: {
+          project: {
+            id
+          }
+        },
+        order: { id: 'desc' }
+      });
+      const foundProject = await this.projectRepository.findOne({
+        where: {
+          id,
+        }
+      })
+      if (!foundData || !foundProject) throw new NotFoundException('Transaction Project not found !');
+      foundData.forEach((el) => {
+        delete el.applicant.password;
+      });
+      const filterDebit = foundData.filter((el) => el.debit > 0);
+      const filterCredit = foundData.filter((el) => el.credit > 0);
+      let countCredit = 0;
+      let countDebit = 0;
+      foundData.forEach((el) => {
+        if(filterDebit.length) {
+          countDebit += el.debit;
+        }
+        if(filterCredit.length) {
+          countCredit += el.credit;
+        }
+      });
+      const payload = {
+        statusCode: 200,
+        message: 'OK',
+        data: {
+          debit: countDebit,
+          credit: countCredit,
+          saldo: foundProject.saldo_project,
+          project_value: countCredit + foundProject.saldo_project,
+        }
+      }
       return ResponseStatus(payload.statusCode, payload.message, payload.data);
     } catch (error) {
       throw new Error(error);
@@ -121,7 +177,7 @@ export class TransactionsService {
         }, relations: ['project', 'applicant']
       });
       if (!foundTransaction) throw new NotFoundException('Transaction not found !');
-      if (updateTransactionDto.isApproved) {
+      if (updateTransactionDto.isApproved && updateTransactionDto.category === 'cashbond') {
         await this.projectRepository.update(foundTransaction.project.id, { saldo_project: foundTransaction.project.saldo_project - foundTransaction.credit });
         await this.userRepository.update(foundTransaction.applicant.id, { saldo: foundTransaction.applicant.saldo - foundTransaction.credit });
         const saveUser: User = await this.userRepository.save({ id: foundTransaction.applicant.id });

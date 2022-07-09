@@ -8,10 +8,16 @@ export class CreateProjectDto {
   owner_name: string;
 
   @IsString()
+  contact_owner: string;
+
+  @IsString()
   project_address: string;
 
   @IsNumber()
   saldo_project: number;
+
+  @IsNumber()
+  value_project: number;
 
   @IsDate()
   end_date: Date;

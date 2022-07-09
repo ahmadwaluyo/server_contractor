@@ -14,14 +14,14 @@ export class ProjectsService {
   ) { }
   async create(createProjectDto: CreateProjectDto): Promise<Project> {
     try {
-      const { project_name, project_address, end_date, saldo_project, owner_name } = createProjectDto;
+      const { project_name, project_address, end_date, saldo_project, owner_name, value_project } = createProjectDto;
       const selectedProject: Project = await this.projectRepository.findOne({
         where: {
           project_name,
         },
       });
       if (selectedProject) throw new NotFoundException(`Project ${project_name} is already exist !`);
-      const dataProject = await this.projectRepository.save({ project_name, project_address, end_date, saldo_project, owner_name });
+      const dataProject = await this.projectRepository.save({ project_name, project_address, end_date, saldo_project, owner_name, value_project });
       return ResponseStatus(201, 'Project Created Successfully !', dataProject);
     } catch (error) {
       throw new Error(error);
@@ -30,7 +30,7 @@ export class ProjectsService {
 
   async findAll(): Promise<Project[]> {
     try {
-      const foundData = await this.projectRepository.find({ relations: ['workers', 'payrolls', 'absences'] });
+      const foundData = await this.projectRepository.find({ relations: ['workers', 'payrolls', 'absences', 'transactions'], order: { id: 'DESC' } });
       foundData.forEach((el) => {
         el.workers.forEach((e) => {
           delete e.password;
@@ -53,7 +53,7 @@ export class ProjectsService {
         where: {
           id: id
         },
-        relations: ['workers', 'payrolls'],
+        relations: ['workers', 'payrolls', 'absences', 'transactions'],
       });
       if (!selectedProject) throw new NotFoundException(`there is no projects with ID ${id}`);
       selectedProject.workers.forEach((el) => {

@@ -33,6 +33,9 @@ export class User {
   @Column({ default: 0 })
   salary: number;
 
+  @Column({ default: true })
+  status: boolean;
+
   @ManyToOne(() => RoleEntity, roles => roles.users)
   @JoinColumn({ name: 'roleId' })
   public role: RoleEntity;

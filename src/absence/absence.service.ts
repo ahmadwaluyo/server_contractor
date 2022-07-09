@@ -22,10 +22,10 @@ export class AbsenceService {
 
   async create(createAbsenceDto: CreateAbsenceDto): Promise<Absence> {
     try {
-      const { clock_in, userId, projectId, isApproved } = createAbsenceDto;
+      const { clock_in, userId, projectId, isApproved, lat, long } = createAbsenceDto;
       const saveUser: User = await this.userRepository.save({ id: userId });
       const saveProject: Project = await this.projectRepository.save({ id: projectId });
-      const dataAbsence = await this.absenceRepository.save({ clock_in, userId, karyawan: saveUser, project: saveProject, isApproved });
+      const dataAbsence = await this.absenceRepository.save({ clock_in, userId, karyawan: saveUser, project: saveProject, isApproved, lat, long });
       return ResponseStatus(201, 'Absence Created Successfully', dataAbsence);
     } catch (error) {
       throw new Error(error);
@@ -159,7 +159,7 @@ export class AbsenceService {
         }
         finalSaldo = foundUser.saldo + foundUser.salary + (foundData.karyawan.salary / 7) * foundData.overtime;
 
-        if (finalSaldo > 0) await this.userRepository.update(foundData.karyawan.id, { saldo: decimalAdjust('round', finalSaldo, 3) });
+        await this.userRepository.update(foundData.karyawan.id, { saldo: decimalAdjust('round', finalSaldo, 3) });
       }
       const updatedAbsence = await this.absenceRepository.update(id, updateAbsenceDto);
       return ResponseStatus(200, 'OK', updatedAbsence);

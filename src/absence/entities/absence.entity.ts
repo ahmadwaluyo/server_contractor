@@ -19,6 +19,12 @@ export class Absence {
   @Column({ default: 0 })
   overtime: number;
 
+  @Column({ default: "" })
+  lat: string;
+
+  @Column({ default: "" })
+  long: string;
+
   @ManyToOne(() => User, user => user.absence)
   @JoinColumn({ name: 'userId' })
   public karyawan: User;

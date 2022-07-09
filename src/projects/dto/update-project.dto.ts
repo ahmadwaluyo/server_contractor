@@ -11,4 +11,7 @@ export class UpdateProjectDto extends PartialType(CreateProjectDto) {
 
   @IsNumber()
   saldo_project: number;
+
+  @IsNumber()
+  value_project: number;
 }
