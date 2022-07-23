@@ -6,6 +6,9 @@ export class UpdateAbsenceDto extends PartialType(CreateAbsenceDto) {
   @IsBoolean()
   isApproved?: boolean;
 
+  @IsBoolean()
+  isRejected?: boolean;
+
   @IsNumber()
   overtime?: number;
 

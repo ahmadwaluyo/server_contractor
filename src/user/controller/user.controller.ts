@@ -15,7 +15,12 @@ export class UserController {
     return this.userServices.login(body);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Get('/username/:username')
+  async getUserByUsername(@Param('username') username: string): Promise<User> {
+    return this.userServices.findUsernameForPublic(username);
+  }
+
+  // @UseGuards(JwtAuthGuard)
   @Post()
   createUser(@Body() user: UserDto): Promise<User> {
     return this.userServices.create(user);
@@ -31,6 +36,12 @@ export class UserController {
   @Get('/:userId')
   findUserById (@Param('userId') userId: number): Promise<User>{
       return this.userServices.findUserById(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('role/:roleId')
+  findOne (@Param('roleId') roleId: number): Promise<User>{
+    return this.userServices.findUserByRoleId(roleId);
   }
 
   @UseGuards(JwtAuthGuard)

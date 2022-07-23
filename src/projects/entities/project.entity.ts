@@ -39,7 +39,8 @@ export class Project {
   @Column({ default: true })
   status: boolean;
 
-  @OneToMany(() => User, (user: User) => user.project)
+  @ManyToMany(() => User)
+  @JoinTable()
 	public workers: User[]
 
   @OneToMany(() => Absence, (abs: Absence) => abs.project)

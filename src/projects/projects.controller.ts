@@ -8,7 +8,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
   
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createProjectDto: CreateProjectDto) {
     return this.projectsService.create(createProjectDto);
@@ -18,6 +18,12 @@ export class ProjectsController {
   @Get()
   findAll() {
     return this.projectsService.findAll();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user/:userId')
+  find(@Param('userId') userId: string) {
+    return this.projectsService.findProjectByUserId(+userId);
   }
 
   @UseGuards(JwtAuthGuard)

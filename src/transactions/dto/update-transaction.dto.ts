@@ -13,5 +13,8 @@ export class UpdateTransactionDto extends PartialType(CreateTransactionDto) {
   isApproved: boolean;
 
   @IsBoolean()
+  isRejected: boolean;
+
+  @IsBoolean()
   isPayed: boolean;
 }

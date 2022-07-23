@@ -23,6 +23,7 @@ export class UserService {
   ) { }
 
   async create(user: UserDto): Promise<User> {
+    let tempProjects = [];
     try {
       const { email, password, name, projectId, username, phone_number, roleId, saldo, salary } = user;
       const findEmail: User = await this.userRepository.findOne({
@@ -32,9 +33,13 @@ export class UserService {
       })
       if (findEmail) throw new ConflictException(`${email} is already created user. Create another user.`);
       const hashPassword: string = await this.authService.hashPassword(password);
-      const saveProject: Project = await this.projectRepository.save({ id: projectId });
+      projectId.forEach(async (el: any) => {
+        const saveProject: Project = await this.projectRepository.save({ id: el });
+        tempProjects.push(saveProject);
+      });
+      // const saveProject: Project[] = await this.projectRepository.save([{ id: projectId }]);
       const saveRole: RoleEntity = await this.roleRepository.save({ id: roleId });
-      const dataUser = await this.userRepository.save({ email, name, username, password: hashPassword, phone_number, saldo, salary, project: saveProject, role: saveRole });
+      const dataUser = await this.userRepository.save({ email, name, username, password: hashPassword, phone_number, saldo, salary, projects: tempProjects, role: saveRole });
       delete dataUser.password;
       const payload = {
         statusCode: 201,
@@ -49,7 +54,7 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     try {
-      const foundData = await this.userRepository.find({ relations: ['role', 'project', 'absence', 'payroll', 'transactions'] });
+      const foundData = await this.userRepository.find({ relations: ['role', 'projects', 'absence', 'payroll', 'transactions'] });
       const payload = {
         statusCode: 200,
         message: 'OK',
@@ -84,7 +89,7 @@ export class UserService {
         where: {
           id
         },
-        relations: ['role', 'project', 'absence', 'payroll', 'transactions']
+        relations: ['role', 'projects', 'absence', 'payroll', 'transactions']
       });
       if (!selectedUser) throw new NotFoundException(`there is no user with ID ${id}`);
       delete selectedUser.password;
@@ -105,7 +110,7 @@ export class UserService {
         where: {
           username
         },
-        relations: ['role', 'project', 'absence', 'payroll', 'transactions'],
+        relations: ['role', 'projects', 'absence', 'payroll', 'transactions'],
       });
 
       if (!selectedUser) throw new NotFoundException(`there is no user with username->(${username})`);
@@ -115,10 +120,63 @@ export class UserService {
     }
   }
 
+  async findUsernameForPublic(username: string): Promise<User> {
+    try {
+      const selectedUser: User = await this.userRepository.findOne({
+        where: {
+          username
+        },
+        relations: ['role', 'projects', 'absence', 'payroll', 'transactions'],
+      });
+
+      if (!selectedUser) throw new NotFoundException(`there is no user with username->(${username})`);
+      delete selectedUser.password;
+      const accessToken = await this.authService.generateJWT(selectedUser);
+      return ResponseStatus(200, 'OK', accessToken);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async findUserByRoleId(id: number): Promise<User> {
+    try {
+      const selectedUser: User = await this.userRepository.findOne({
+        where: {
+          role: {
+            id,
+          }
+        },
+        relations: ['role', 'projects', 'absence', 'payroll', 'transactions'],
+      });
+      if (!selectedUser) throw new NotFoundException(`there is no user with role ID->(${id})`);
+      delete selectedUser.password;
+      const payload = {
+        statusCode: 200,
+        message: 'OK',
+        data: selectedUser
+      };
+      return ResponseStatus(payload.statusCode, payload.message, payload.data);
+    } catch (error: Error | any) {
+      throw new Error(error);
+    }
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto): Promise<any> {
     try {
-      await this.userRepository.update(id, updateUserDto);
-      const findUser: User = await this.userRepository.findOne({ where: { id }, relations: ['role', 'project', 'absence', 'payroll'] });
+      let newPassword: string;
+      let finalPayload = updateUserDto;
+
+      if (updateUserDto.password) {
+        newPassword = await this.authService.hashPassword(updateUserDto.password);
+        finalPayload = {
+          ...updateUserDto,
+          password: newPassword,
+        };
+      }
+
+      await this.userRepository.update(id, finalPayload);
+      const findUser: User = await this.userRepository.findOne({ where: { id }, relations: ['role', 'projects', 'absence', 'payroll'] });
+      delete findUser.password;
       const payload = {
         statusCode: 200,
         message: 'User successfully updated',

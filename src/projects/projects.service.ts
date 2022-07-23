@@ -14,14 +14,14 @@ export class ProjectsService {
   ) { }
   async create(createProjectDto: CreateProjectDto): Promise<Project> {
     try {
-      const { project_name, project_address, end_date, saldo_project, owner_name, value_project } = createProjectDto;
+      const { project_name, project_address, end_date, saldo_project, owner_name, value_project, contact_owner } = createProjectDto;
       const selectedProject: Project = await this.projectRepository.findOne({
         where: {
           project_name,
         },
       });
       if (selectedProject) throw new NotFoundException(`Project ${project_name} is already exist !`);
-      const dataProject = await this.projectRepository.save({ project_name, project_address, end_date, saldo_project, owner_name, value_project });
+      const dataProject = await this.projectRepository.save({ project_name, project_address, end_date, saldo_project, owner_name, value_project, contact_owner });
       return ResponseStatus(201, 'Project Created Successfully !', dataProject);
     } catch (error) {
       throw new Error(error);
@@ -31,6 +31,25 @@ export class ProjectsService {
   async findAll(): Promise<Project[]> {
     try {
       const foundData = await this.projectRepository.find({ relations: ['workers', 'payrolls', 'absences', 'transactions'], order: { id: 'DESC' } });
+      foundData.forEach((el) => {
+        el.workers.forEach((e) => {
+          delete e.password;
+        });
+      });
+      const payload = {
+        statusCode: 200,
+        message: 'OK',
+        data: foundData
+      }
+      return ResponseStatus(payload.statusCode, payload.message, payload.data);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async findProjectByUserId(id: number): Promise<Project[]> {
+    try {
+      const foundData = await this.projectRepository.find({ where: { workers: { id } }, relations: ['workers', 'payrolls', 'absences', 'transactions'], order: { id: 'DESC' } });
       foundData.forEach((el) => {
         el.workers.forEach((e) => {
           delete e.password;

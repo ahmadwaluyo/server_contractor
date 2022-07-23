@@ -19,13 +19,13 @@ export class AuthService {
             name,
             email,
             role,
-            project,
+            projects,
             phone_number,
             created_at,
             updated_at,
             id
           } = user;
-        return this.jwtService.signAsync({ user: { username, name, email, role, project, created_at, updated_at, id, phone_number } });
+        return this.jwtService.signAsync({ user: { username, name, email, role, projects, created_at, updated_at, id, phone_number } });
     }
     
     hashPassword (password: string): Promise<string> {
@@ -33,9 +33,6 @@ export class AuthService {
     }
 
     comparePassword (newPassword: string, passwordHash: string): boolean{
-        console.log(newPassword, "newPassword");
-        console.log(passwordHash, "passwordHash");
-        
         return bcrypt.compareSync(newPassword, passwordHash);
     }
 
@@ -45,7 +42,7 @@ export class AuthService {
             if (!this.comparePassword(password, findUser.password)) return null;
             return findUser;
         } catch (err) {
-            console.log(err);
+            throw new Error(err);
         }
     }
 }

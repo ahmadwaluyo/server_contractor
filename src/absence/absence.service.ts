@@ -154,8 +154,11 @@ export class AbsenceService {
       if (updateAbsenceDto.isApproved) {
         const foundUser = await this.userRepository.findOne({ where: { id: foundData.karyawan.id } });
 
-        if (updateAbsenceDto.overtime > 0) {
+        if (updateAbsenceDto.overtime > 0 && updateAbsenceDto.overtime < 6) {
           overtime = (foundUser.salary / 7) * foundData.overtime;
+        }
+        if (updateAbsenceDto.overtime >= 6) {
+          overtime = foundUser.salary;
         }
         finalSaldo = foundUser.saldo + foundUser.salary + (foundData.karyawan.salary / 7) * foundData.overtime;
 

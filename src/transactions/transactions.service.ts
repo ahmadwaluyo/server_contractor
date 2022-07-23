@@ -36,13 +36,15 @@ export class TransactionsService {
       const data = await this.transactionRepository.save({ category, descriptions, project: saveProject, applicant: saveUser, transaction_date, credit, debit });
       const foundProject: Project = await this.projectRepository.findOne({ where: { id: projectId } })
       let isUpdatedCredit = null;
-      if (createTransactionDto.credit && createTransactionDto.category !== 'cashbond') {
-        isUpdatedCredit = await this.projectRepository.update(projectId, { saldo_project: Number(foundProject.saldo_project) - Number(createTransactionDto.credit) })
-      }
-      if (createTransactionDto.debit && createTransactionDto.category !== 'cashbond') {
-        isUpdatedCredit = await this.projectRepository.update(projectId, { saldo_project: Number(foundProject.saldo_project) + Number(createTransactionDto.debit) })
-      }
-      if (!isUpdatedCredit) throw new Error("Can't update saldo project !");
+      if (createTransactionDto.category !== 'cashbond') {
+        if (createTransactionDto.credit && createTransactionDto.credit > 0) {
+          isUpdatedCredit = await this.projectRepository.update(projectId, { saldo_project: Number(foundProject.saldo_project) - Number(createTransactionDto.credit) })
+        }
+        if (createTransactionDto.debit && createTransactionDto.debit > 0) {
+          isUpdatedCredit = await this.projectRepository.update(projectId, { saldo_project: Number(foundProject.saldo_project) + Number(createTransactionDto.debit) })
+        }
+        if (!isUpdatedCredit) throw new Error("Can't update saldo project !");
+      };
       const payload = {
         statusCode: 201,
         message: 'OK',
@@ -110,7 +112,7 @@ export class TransactionsService {
           debit: countDebit,
           credit: countCredit,
           saldo: foundProject.saldo_project,
-          project_value: countCredit + foundProject.saldo_project,
+          project_value: foundProject.value_project,
         }
       }
       return ResponseStatus(payload.statusCode, payload.message, payload.data);
@@ -148,8 +150,9 @@ export class TransactionsService {
     try {
       const foundData = await this.transactionRepository.find({
         relations: ['project', 'applicant'], where: {
+          category: "cashbond",
           applicant: {
-            id
+            id,
           }
         },
         order: { id: 'desc' }
@@ -177,12 +180,14 @@ export class TransactionsService {
         }, relations: ['project', 'applicant']
       });
       if (!foundTransaction) throw new NotFoundException('Transaction not found !');
-      if (updateTransactionDto.isApproved && updateTransactionDto.category === 'cashbond') {
-        await this.projectRepository.update(foundTransaction.project.id, { saldo_project: foundTransaction.project.saldo_project - foundTransaction.credit });
-        await this.userRepository.update(foundTransaction.applicant.id, { saldo: foundTransaction.applicant.saldo - foundTransaction.credit });
-        const saveUser: User = await this.userRepository.save({ id: foundTransaction.applicant.id });
-        const saveProject: Project[] = await this.projectRepository.save([{ id: foundTransaction.project.id }]);
-        await this.payrollRepository.save({ salary: foundTransaction.credit, userId: foundTransaction.applicant.id, employee: saveUser, descriptions: "cashbond", projects: saveProject });
+      if (updateTransactionDto.isApproved) {
+        if (updateTransactionDto.category === 'cashbond') {
+          await this.projectRepository.update(foundTransaction.project.id, { saldo_project: foundTransaction.project.saldo_project - foundTransaction.credit });
+          await this.userRepository.update(foundTransaction.applicant.id, { saldo: foundTransaction.applicant.saldo - foundTransaction.credit });
+          const saveUser: User = await this.userRepository.save({ id: foundTransaction.applicant.id });
+          const saveProject: Project[] = await this.projectRepository.save([{ id: foundTransaction.project.id }]);
+          await this.payrollRepository.save({ salary: foundTransaction.credit, userId: foundTransaction.applicant.id, employee: saveUser, descriptions: "cashbond", projects: saveProject });
+        }
       }
       await this.transactionRepository.update(id, updateTransactionDto);
       const payload = {

@@ -24,7 +24,7 @@ export class UserDto {
   salary: number;
 
   @IsNumber()
-  projectId: number;
+  projectId: number[];
 
   @IsNumber()
   roleId: number;

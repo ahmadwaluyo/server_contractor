@@ -3,7 +3,7 @@ import { Absence } from "src/absence/entities/absence.entity";
 import { Payroll } from "src/payroll/entities/payroll.entity";
 import { Project } from "src/projects/entities/project.entity";
 import { Transaction } from "src/transactions/entities/transaction.entity";
-import { BeforeInsert, Column, CreateDateColumn, Entity, Generated, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, Entity, Generated, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { RoleEntity } from "../../role/entities/role.entity";
 
 @Entity({name: 'users'})
@@ -40,9 +40,9 @@ export class User {
   @JoinColumn({ name: 'roleId' })
   public role: RoleEntity;
 
-  @ManyToOne(() => Project, project => project.workers)
-  @JoinColumn({ name: 'projectId' })
-  public project: Project;
+  @ManyToMany(() => Project, project => project.workers, { cascade: true })
+  @JoinTable()
+  public projects: Project[];
 
   @OneToMany(() => Absence, (absence: Absence) => absence.karyawan)
   public absence: Absence[];

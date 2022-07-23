@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import ResponseStatus from 'src/middleware/responses';
 import { Project } from 'src/projects/entities/project.entity';
+import { CreateTransactionDto } from 'src/transactions/dto/create-transaction.dto';
+import { Transaction } from 'src/transactions/entities/transaction.entity';
 import { User } from 'src/user/entity/user.entity';
 import { InsertValuesMissingError, Repository } from 'typeorm';
 import { CreatePayrollDto } from './dto/create-payroll.dto';
@@ -17,6 +19,8 @@ export class PayrollService {
     private projectRepository: Repository<Project>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    // @InjectRepository(Transaction)
+    // private transactionRepository: Repository<Transaction>,
   ) { }
 
   async create(createPayrollDto: CreatePayrollDto): Promise<Payroll> {
@@ -26,20 +30,16 @@ export class PayrollService {
       const saveProject: Project[] = await this.projectRepository.save([{ id: projectId }]);
 
       const foundUser: User = await this.userRepository.findOne({ where: { id: userId } });
-      const foundProject: Project = await this.projectRepository.findOne({ where: { id: projectId } });
       const payloadUser = {
         saldo: foundUser.saldo - salary
       }
-      const payloadProject = {
-        saldo_project: foundProject.saldo_project - salary
-      }
-      const isItDone: Payroll = await this.payrollRepository.save({ salary, userId, employee: saveUser, descriptions, projects: saveProject });
-      if (!isItDone) throw new InsertValuesMissingError();
 
       const updateUser = await this.userRepository.update(userId, payloadUser);
-      const updateProject = await this.projectRepository.update(projectId, payloadProject);
+      const isItDone: Payroll = await this.payrollRepository.save({ salary, userId, employee: saveUser, descriptions, projects: saveProject });
+      Promise.all([updateUser, isItDone]);
+      
+      if (!isItDone) throw new InsertValuesMissingError();
 
-      Promise.all([updateUser, updateProject]);
       return ResponseStatus(201, 'Payroll Created Successfully', isItDone);
     } catch (error) {
       throw new Error(error);
@@ -93,7 +93,33 @@ export class PayrollService {
         relations: ['employee', 'projects'],
         order: { id: 'DESC' }
       });
-      if (!foundData) throw new NotFoundException(`There is no data payroll with id ${id}`);
+      if (!foundData) throw new NotFoundException(`There is no data payroll with userId ${id}`);
+      foundData.forEach((el) => {
+        if (el.employee) delete el.employee.password;
+      });
+      const payload = {
+        statusCode: 200,
+        message: 'OK',
+        data: foundData
+      }
+      return payload;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async findPayrollByProjectId(id: number) {
+    try {
+      const foundData = await this.payrollRepository.find({
+        where: {
+          projects: {
+            id,
+          },
+        },
+        relations: ['employee', 'projects'],
+        order: { id: 'DESC' }
+      });
+      if (!foundData) throw new NotFoundException(`There is no data payroll with projectId ${id}`);
       foundData.forEach((el) => {
         if (el.employee) delete el.employee.password;
       });

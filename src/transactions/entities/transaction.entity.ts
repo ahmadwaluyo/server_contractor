@@ -23,6 +23,9 @@ export class Transaction {
   isApproved: boolean;
 
   @Column({ default: false })
+  isRejected: boolean;
+
+  @Column({ default: false })
   isPayed: boolean;
 
   @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })

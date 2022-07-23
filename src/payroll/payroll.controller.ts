@@ -27,6 +27,12 @@ export class PayrollController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('project/:id')
+  find(@Param('id') id: string) {
+    return this.payrollService.findPayrollByProjectId(+id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePayrollDto: UpdatePayrollDto) {
     return this.payrollService.update(+id, updatePayrollDto);

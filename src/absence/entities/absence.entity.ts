@@ -14,6 +14,9 @@ export class Absence {
   isApproved: boolean;
 
   @Column({ default: false })
+  isRejected: boolean;
+
+  @Column({ default: false })
   request_overtime: boolean;
 
   @Column({ default: 0 })
